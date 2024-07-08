@@ -1,7 +1,9 @@
 <template>
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="isCollapse" />
+<!--    这是一个由 Element UI 提供的可滚动容器组件,用于在侧边栏导航内容超出屏幕时提供滚动功能。-->
     <el-scrollbar wrap-class="scrollbar-wrapper">
+<!--      这是 Element UI 提供的菜单组件,用于渲染侧边栏导航菜单。-->
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
@@ -12,7 +14,8 @@
         :collapse-transition="false"
         mode="vertical"
       >
-        <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path" />
+<!--         用来渲染所有的侧边栏项-->
+        <sidebar-item v-for="route in routeArr" :key="route.path" :item="route" :base-path="route.path" />
       </el-menu>
     </el-scrollbar>
   </div>
@@ -26,6 +29,16 @@ import variables from '@/styles/variables.scss'
 
 export default {
   components: { SidebarItem, Logo },
+  data(){
+    return{
+      routeArr:[]
+    }
+  },
+  mounted() {
+      this.$nextTick(() => {
+        this.routeArr = this.$router.options.routes
+      })
+  },
   computed: {
     ...mapGetters([
       'sidebar'
@@ -51,6 +64,6 @@ export default {
     isCollapse() {
       return !this.sidebar.opened
     }
-  }
+  },
 }
 </script>
