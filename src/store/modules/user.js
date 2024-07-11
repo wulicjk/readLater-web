@@ -1,7 +1,6 @@
 import {login, logout, getInfo} from '@/api/user'
 import {getToken, setToken, removeToken} from '@/utils/auth'
 import {resetRouter} from '@/router'
-import {getTagList} from "@/api";
 
 const getDefaultState = () => {
   return {
@@ -45,28 +44,6 @@ const actions = {
         resolve()
       }).catch(error => {
         reject(error)
-      })
-    })
-  },
-  // tagList({commit}) {
-  //   return new Promise((resolve, reject) => {
-  //     getTagList().then(response => {
-  //       const {data} = response
-  //       //调用路由接口，后端返回相应用户的路由res.router，我们需要存储到store中，方便其他地方拿取
-  //       this.$store.dispatch("tagList", data.list);
-  //       commit('SET_TAG_LIST', data.list);
-  //       resolve()
-  //     })
-  //   })
-  // },
-  fetchTagCategories({commit}) {
-    return new Promise((resolve, reject) => {
-      getTagList().then(response => {
-        const {data} = response
-        //调用路由接口，后端返回相应用户的路由res.router，我们需要存储到store中，方便其他地方拿取
-        commit('SET_TAG_CATEGORIES', data)
-        // commit('SET_TAG_CATEGORIES', data.list);
-        resolve()
       })
     })
   },

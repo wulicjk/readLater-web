@@ -47,6 +47,7 @@
 
 <script>
 import {mapGetters} from 'vuex'
+import {getTagList} from "@/api/tag";
 
 export default {
   name: 'Dashboard',
@@ -56,7 +57,7 @@ export default {
     }
   },
   created() {
-    // this.getTags()
+    this.getTags()
   },
   methods: {
     getTags() {
