@@ -1,16 +1,17 @@
 <template>
   <div v-if="!item.hidden">
-    <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
+    <template
+      v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
+          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
         </el-menu-item>
       </app-link>
     </template>
-
+    <!--    有子菜单时用这个渲染-->
     <el-submenu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
       <template slot="title">
-        <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
+        <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title"/>
       </template>
       <sidebar-item
         v-for="child in item.children"
@@ -20,20 +21,40 @@
         :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
+      <!-- 如果当前菜单项的 name 属性为 "dashboard"，则添加一个"添加子菜单"的按钮 -->
+      <div v-if="item.name === 'dashboard'">
+        <div>
+          <el-menu-item index="add-submenu">
+            <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14">
+            <span>Add</span>
+          </el-menu-item>
+        </div>
+        <div>
+          <el-menu-item index="add-submenu">
+            <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14">
+            <span>Edit</span>
+          </el-menu-item>
+        </div>
+      </div>
     </el-submenu>
+    Item Name: {{ item }}
+    <div v-if="item['name']==='dashboard'">
+      Item Name: {{ item.name }}
+      <p>你好</p>
+    </div>
   </div>
 </template>
 
 <script>
 import path from 'path'
-import { isExternal } from '@/utils/validate'
+import {isExternal} from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
 
 export default {
   name: 'SidebarItem',
-  components: { Item, AppLink },
+  components: {Item, AppLink},
   mixins: [FixiOSBug],
   props: {
     // route object
@@ -49,6 +70,9 @@ export default {
       type: String,
       default: ''
     }
+  },
+  created() {
+    console.log(this.item['name'])
   },
   data() {
     // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237
@@ -75,7 +99,7 @@ export default {
 
       // 如果没有要显示的子路由器，则显示父路由器
       if (showingChildren.length === 0) {
-        this.onlyOneChild = { ... parent, path: '', noShowingChildren: true }
+        this.onlyOneChild = {...parent, path: '', noShowingChildren: true}
         return true
       }
 

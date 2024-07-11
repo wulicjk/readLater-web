@@ -71,9 +71,9 @@
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
-      &:hover {
-        background-color: $menuHover !important;
-      }
+      //&:hover {
+      //  background-color: $menuHover !important;
+      //}
     }
 
     .is-active>.el-submenu__title {
@@ -86,7 +86,7 @@
       background-color: $subMenuBg !important;
 
       &:hover {
-        background-color: $subMenuHover !important;
+        color: $subMenuActiveText !important; // 悬停时高亮字体颜色
       }
     }
   }

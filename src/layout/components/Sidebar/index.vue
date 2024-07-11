@@ -1,5 +1,6 @@
 <template>
   <div :class="{'has-logo':showLogo}">
+<!--    logo页面-->
     <logo v-if="showLogo" :collapse="isCollapse" />
 <!--    这是一个由 Element UI 提供的可滚动容器组件,用于在侧边栏导航内容超出屏幕时提供滚动功能。-->
     <el-scrollbar wrap-class="scrollbar-wrapper">
