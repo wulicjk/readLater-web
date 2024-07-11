@@ -22,14 +22,14 @@
         class="nest-menu"
       />
       <!-- 如果当前菜单项的 name 属性为 "dashboard"，则添加一个"添加子菜单"的按钮 -->
-      <div v-if="item.name === 'dashboard'">
-        <div>
+      <div v-if="item.name === 'dashboard'" class="operateButton">
+        <div class="left-side">
           <el-menu-item index="add-submenu">
             <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14">
             <span>Add</span>
           </el-menu-item>
         </div>
-        <div>
+        <div class="right-side">
           <el-menu-item index="add-submenu">
             <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14">
             <span>Edit</span>
@@ -37,11 +37,6 @@
         </div>
       </div>
     </el-submenu>
-    Item Name: {{ item }}
-    <div v-if="item['name']==='dashboard'">
-      Item Name: {{ item.name }}
-      <p>你好</p>
-    </div>
   </div>
 </template>
 
@@ -72,7 +67,7 @@ export default {
     }
   },
   created() {
-    console.log(this.item['name'])
+    console.log(this.item)
   },
   data() {
     // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237

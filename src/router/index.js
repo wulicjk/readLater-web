@@ -64,7 +64,10 @@ export const constantRoutes = [
       path: 'tag',
       name: 'tag',
       component: () => import('@/views/tag/index'),
-      meta: {title: '所有', icon: 'dashboard'}
+      meta: {
+        title: '所有',
+        // icon: 'dashboard'
+      }
     }]
   },
 
@@ -189,7 +192,7 @@ const loadDynamicRoutes = () => {
         component: () => import(`@/views/tag/index`),
         meta: {
           title: route.tagName,
-          icon: 'dashboard'
+          // icon: 'dashboard'
         }
       })
     })

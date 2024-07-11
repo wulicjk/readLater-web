@@ -89,6 +89,23 @@
         color: $subMenuActiveText !important; // 悬停时高亮字体颜色
       }
     }
+    .operateButton {
+      display: flex;
+      justify-content: center;
+      & .left-side{
+        margin-right: 30px;
+      }
+    }
+    .operateButton .el-menu-item {
+      /* 移除 el-menu-item 的 padding */
+      padding: 0 !important;
+      min-width: auto !important;
+    }
+    .operateButton .left-side img,
+    .operateButton .right-side img {
+      margin-right: 5px;
+    }
+
   }
 
   .hideSidebar {
