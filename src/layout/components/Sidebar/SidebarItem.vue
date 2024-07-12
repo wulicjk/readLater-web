@@ -4,7 +4,15 @@
       v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+          <div class="menu-item-content">
+            <div class="item-container">
+              <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+            </div>
+            <div v-if="showActionButtons" class="action-buttons">
+              <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14" class="action-icon">
+              <img src="@/assets/icon/delete.svg" alt="Add Icon" width="14" height="14" class="action-icon">
+            </div>
+          </div>
         </el-menu-item>
       </app-link>
     </template>
@@ -22,18 +30,28 @@
         class="nest-menu"
       />
       <!-- 如果当前菜单项的 name 属性为 "dashboard"，则添加一个"添加子菜单"的按钮 -->
-      <div v-if="item.name === 'dashboard'" class="operateButton">
-        <div class="left-side">
-          <el-menu-item index="add-submenu">
-            <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14">
-            <span>Add</span>
-          </el-menu-item>
+      <div v-if="item.name === 'dashboard'">
+        <div class="operateButton" v-if="!showButtons">
+          <div class="left-side">
+            <el-menu-item index="add-submenu">
+              <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14"  class="icon-img">
+              <span>Add</span>
+            </el-menu-item>
+          </div>
+          <div class="right-side">
+            <el-menu-item index="add-submenu" @click="changeEditMode">
+              <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14" class="icon-img">
+              <span>Edit</span>
+            </el-menu-item>
+          </div>
         </div>
-        <div class="right-side">
-          <el-menu-item index="add-submenu">
-            <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14">
-            <span>Edit</span>
-          </el-menu-item>
+        <div class="finishButton" v-if="showButtons">
+          <div>
+            <el-menu-item index="add-submenu" @click="changeEditMode">
+              <img src="@/assets/icon/success.svg" alt="Add Icon" width="14" height="14" class="icon-img">
+              <span>Finish</span>
+            </el-menu-item>
+          </div>
         </div>
       </div>
     </el-submenu>
@@ -46,6 +64,8 @@ import {isExternal} from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
+import {mapActions} from "vuex";
+import store from "@/store";
 
 export default {
   name: 'SidebarItem',
@@ -74,6 +94,14 @@ export default {
     this.onlyOneChild = null
     return {}
   },
+  computed: {
+    showActionButtons() {
+      return this.$store.state.sidebar.isEditMode && this.item.name.includes('tag');
+    },
+    showButtons() {
+      return this.$store.state.sidebar.isEditMode;
+    },
+  },
   methods: {
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {
@@ -96,7 +124,6 @@ export default {
         this.onlyOneChild = {...parent, path: '', noShowingChildren: true}
         return true
       }
-
       return false
     },
     resolvePath(routePath) {
@@ -107,7 +134,48 @@ export default {
         return this.basePath
       }
       return path.resolve(this.basePath, routePath)
-    }
+    },
+    async changeEditMode() {
+      await store.dispatch('sidebar/toggleEditMode')
+    },
+    editMenuItem() {
+      // 添加编辑菜单项的逻辑
+      console.log('Editing menu item:', this.item);
+    },
+    deleteMenuItem() {
+      // 添加删除菜单项的逻辑
+      console.log('Deleting menu item:', this.item);
+    },
+    addSubmenu() {
+      // 添加添加子菜单的逻辑
+      console.log('Adding submenu to:', this.item);
+    },
   }
 }
 </script>
+
+<style>
+.menu-item-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.action-icon {
+  margin-left: 4px;
+}
+
+.item-container {
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+}
+
+</style>

@@ -75,13 +75,18 @@
       //  background-color: $menuHover !important;
       //}
     }
-
+    //菜单高亮
+    .is-active {
+      border-radius: 5px;
+      font-weight: bold;
+    }
     .is-active>.el-submenu__title {
       color: $subMenuActiveText !important;
     }
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
+      padding: 0;
       min-width: $sideBarWidth !important;
       background-color: $subMenuBg !important;
 
@@ -91,19 +96,18 @@
     }
     .operateButton {
       display: flex;
-      justify-content: center;
-      & .left-side{
-        margin-right: 30px;
-      }
+      justify-content: space-between;
+      padding: 0 40px;;
     }
-    .operateButton .el-menu-item {
+    .finishButton{
+      display: flex;
+      justify-content: center;
+    }
+    .operateButton .el-menu-item,
+    .finishButton .el-menu-item {
       /* 移除 el-menu-item 的 padding */
       padding: 0 !important;
       min-width: auto !important;
-    }
-    .operateButton .left-side img,
-    .operateButton .right-side img {
-      margin-right: 5px;
     }
 
   }

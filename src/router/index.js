@@ -181,6 +181,7 @@ export const constantRoutes = [
 ]
 
 const loadDynamicRoutes = () => {
+  //todo 静态保存下，不用每次都调用刷新
   return request({
     url: '/tag/getTagList',
     method: 'get',
@@ -188,7 +189,7 @@ const loadDynamicRoutes = () => {
     response.data.list.forEach(route => {
       constantRoutes[2].children.push({
         path: "/?key=" + route.tagName,
-        name: "addchildren" + route.ID,
+        name: "tag" + route.ID,
         component: () => import(`@/views/tag/index`),
         meta: {
           title: route.tagName,
