@@ -6,11 +6,21 @@
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
           <div class="menu-item-content">
             <div class="item-container">
-              <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+              <item v-if="!isTagEditMode" :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+              <input v-if="isTagEditMode" v-model="editTitle" type="text" class="edit-input">
             </div>
-            <div v-if="showActionButtons" class="action-buttons">
-              <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14" class="action-icon">
-              <img src="@/assets/icon/delete.svg" alt="Add Icon" width="14" height="14" class="action-icon">
+            <div v-if="showActionButtons &&!isTagEditMode" class="action-buttons">
+              <img src="@/assets/icon/edit.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
+                   @click="changeTagEditMode">
+              <img src="@/assets/icon/delete.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                   @click="changeTagDangerMode" v-if="!isTagDangerMode">
+              <img src="@/assets/icon/danger.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                   v-if="isTagDangerMode" @click="deleteTag">
+            </div>
+            <div v-if="isTagEditMode" class="action-buttons">
+              <img src="@/assets/icon/true.svg" alt="Edit Icon" width="14" height="14" class="icon-img">
+              <img src="@/assets/icon/false.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                   @click="cancleTagEditMode">
             </div>
           </div>
         </el-menu-item>
@@ -34,7 +44,7 @@
         <div class="operateButton" v-if="!showButtons">
           <div class="left-side">
             <el-menu-item index="add-submenu">
-              <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14"  class="icon-img">
+              <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14" class="icon-img">
               <span>Add</span>
             </el-menu-item>
           </div>
@@ -47,7 +57,7 @@
         </div>
         <div class="finishButton" v-if="showButtons">
           <div>
-            <el-menu-item index="add-submenu" @click="changeEditMode">
+            <el-menu-item index="add-submenu" @click="changeFinishMode">
               <img src="@/assets/icon/success.svg" alt="Add Icon" width="14" height="14" class="icon-img">
               <span>Finish</span>
             </el-menu-item>
@@ -87,20 +97,41 @@ export default {
     }
   },
   created() {
+
   },
   data() {
     // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237
     // TODO: refactor with render function
     this.onlyOneChild = null
-    return {}
+    return {
+      isTagEditMode: false,
+      isTagDeleteMode: false,
+      isTagDangerMode: false,
+      editTitle: "",
+    }
+  },
+  mounted() {
+    if (!this.item.hidden){
+      if (this.onlyOneChild.name.includes('tag')){
+        this.editTitle = this.onlyOneChild.meta.title
+      }
+    }
   },
   computed: {
     showActionButtons() {
-      return this.$store.state.sidebar.isEditMode && this.item.name.includes('tag');
+      return this.$store.state.sidebar.isEditMode && this.item.name.includes('tag')&&this.item.path!=='tag';
     },
     showButtons() {
       return this.$store.state.sidebar.isEditMode;
     },
+    sidebarInitStatus() {
+      return this.$store.state.sidebar.initStatus
+    }
+  },
+  watch: {
+    sidebarInitStatus(oldStatus, newStatus) {
+      this.initAllStatus()
+    }
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
@@ -138,6 +169,31 @@ export default {
     async changeEditMode() {
       await store.dispatch('sidebar/toggleEditMode')
     },
+    //一个路由页面内的修改
+    changeTagEditMode() {
+      this.isTagEditMode = !this.isTagEditMode
+    },
+    cancleTagEditMode() {
+      this.isTagEditMode = !this.isTagEditMode
+    },
+    changeTagDangerMode() {
+      this.isTagDangerMode = !this.isTagDangerMode
+      setTimeout(() => {
+        this.isTagDangerMode = !this.isTagDangerMode;
+      }, 3000);
+    },
+    deleteTag() {
+
+    },
+    async changeFinishMode() {
+      await store.dispatch('sidebar/initAllTagStatus')
+    },
+    async initAllStatus() {
+      this.isTagEditMode = false
+      this.isTagDeleteMode = false
+      this.isTagDangerMode = false
+      await store.dispatch('sidebar/toggleEditMode')
+    },
     editMenuItem() {
       // 添加编辑菜单项的逻辑
       console.log('Editing menu item:', this.item);
@@ -166,16 +222,16 @@ export default {
   padding-right: 10px;
 }
 
-.action-icon {
-  margin-left: 4px;
-}
-
 .item-container {
   max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
+}
+
+.edit-input{
+  max-width: 120px;
 }
 
 </style>
