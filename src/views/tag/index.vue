@@ -1,8 +1,9 @@
 <template>
   <div class="dashboard-container">
-    <div ref="containerDiv">
+    <div>
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="item in readList" :order="1" :key="item.id" :offset="0"
+        <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="(item,index) in readList" :key="item.id" :offset="0"
+                :ref="index === readList.length - 1 ? 'lastItem' : ''"
                 class="custom-col">
           <el-card :body-style="{ padding: '4px' }">
             <img :src="item.imageUrl" class="image" height="150px">
@@ -27,7 +28,7 @@
                       </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <div @click="movoToDiag(item.ID)">
+                      <div @click="moveToDiag(item.ID)">
                         <img class="option-icon" src="@/assets/icon/moveTo.svg" alt="移动到" width="24" height="24">
                         移动到
                       </div>
@@ -51,6 +52,7 @@
           </el-card>
         </el-col>
       </el-row>
+      <div ref="loadMore" class="load-more"></div>
     </div>
     <div class="el-dialog-no-top-padding">
       <el-dialog
@@ -145,11 +147,18 @@ export default {
       movetoDiagStatus: false,
       currentId: "",
       tagOptions: [],
-      tagOptionsValue: ''
+      tagOptionsValue: '',
+      // 是否正在加载
+      loading: false,
+      // 是否还有更多数据
+      hasMore: true,
+      // 当前页码
+      page: 1,
+      // 每页数量
+      pageSize: 12
     }
   },
   created() {
-    this.getTagReadList()
   },
   methods: {
     formatDateTime,
@@ -161,10 +170,14 @@ export default {
       return routeName.slice(3)
     },
     getTagReadList() {
-      let tagId = this.getTagId()
-      getReadList({tagId: tagId}).then(res => {
-        this.readList = res.data
-      })
+      //初始化
+      this.readList = []
+      this.loading = false
+      // 是否还有更多数据
+      this.hasMore = true
+      // 当前页码
+      this.page = 1
+      return this.loadMore()
     },
     addLink() {
       addLinkToCard({url: this.url}).then(res => {
@@ -225,10 +238,10 @@ export default {
           });
         });
     },
-    movoToDiag(id) {
+    moveToDiag(id) {
+      this.tagOptions = []
       this.currentId = id
       let tags = this.$store.state.user.tagCategories
-      console.log(tags)
       tags.forEach(tag => {
         if (typeof tag.name != "undefined" && tag.name.includes('tag')) {
           this.tagOptions.push({value: tag.id, label: tag.tagName})
@@ -246,8 +259,41 @@ export default {
         resMessage(res, this)
         this.movetoDiagStatus = false
         this.getTagReadList()
+        this.tagOptionsValue = ""
       })
-    }
+    },
+    loadMore() {
+      if (this.loading || !this.hasMore) return
+      this.loading = true
+      let tagId = this.getTagId()
+      return getReadList({
+        tagId: tagId,
+        page: this.page,
+        pageSize: this.pageSize
+      }).then(res => {
+        this.readList.push(...res.data.list)
+        this.page++
+        this.hasMore = res.data.pageSize * res.data.page < res.data.total
+        this.loading = false
+        console.log("loadMore执行完毕")
+      })
+    },
+    setupIntersectionObserver() {
+      const options = {
+        root: null,
+        rootMargin: '100px',
+        threshold: 1.0,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.loadMore();
+          }
+        });
+      }, options);
+      observer.observe(this.$refs.loadMore)
+    },
   },
   computed: {
     ...mapGetters([
@@ -262,7 +308,22 @@ export default {
       }
     }
   },
-  watch: {}
+  mounted() {
+    this.getTagReadList().then(res => {
+      console.log("执行setupIntersectionObserver")
+      this.setupIntersectionObserver();
+    })
+
+
+    // this.$nextTick(() => {
+    //   console.log("执行setupIntersectionObserver")
+    //   this.setupIntersectionObserver();
+    // });
+    // this.setupIntersectionObserver()
+  },
+  beforeDestroy() {
+    this.observer.disconnect()
+  }
 }
 </script>
 

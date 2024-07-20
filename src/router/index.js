@@ -2,12 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
-console.log("router init")
 /* Layout */
 import Layout from '@/layout'
-import store from "@/store";
-import request from "@/utils/request";
-import {datetime} from "mockjs/src/mock/random/date";
+
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -184,7 +181,6 @@ export const constantRoutes = [
 
 
 const createRouter = () => {
-  console.log("创建router")
   return new Router({
     // mode: 'history', // require service support
     scrollBehavior: () => ({y: 0}),

@@ -7,7 +7,6 @@ import user from './modules/user'
 import sidebar from './modules/sidebar'
 import request from "@/utils/request";
 import router, {constantRoutes} from "@/router";
-console.log("vuex init")
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -24,7 +23,6 @@ export default store
 
 const loadDynamicRoutes = () => {
   //todo 静态保存下，不用每次都调用刷新
-  console.log("动态加载router")
   return request({
     url: '/tag/getTagList',
     method: 'get',
@@ -51,6 +49,5 @@ const loadDynamicRoutes = () => {
     })
 }
 loadDynamicRoutes().then(r => {
-  // resetRouter()
   console.log("tag加载完毕")
 })
