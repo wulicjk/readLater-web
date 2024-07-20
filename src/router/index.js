@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
-
+console.log("router init")
 /* Layout */
 import Layout from '@/layout'
 import store from "@/store";
@@ -59,13 +59,15 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/tag',
     name: 'dashboard',
-    meta: {title: '标签', icon: 'el-icon-s-help'},
+    meta: {title: 'Tags', icon: 'el-icon-s-help'},
     children: [{
       path: 'tag',
       name: 'tag',
+      id: 0,
+      tagName: "全部",
       component: () => import('@/views/tag/index'),
       meta: {
-        title: '所有',
+        title: 'All',
         // icon: 'dashboard'
       }
     }]
@@ -177,42 +179,18 @@ export const constantRoutes = [
   // },
 
   // 404 page must be placed at the end !!!
-  {path: '*', redirect: '/404', hidden: true}
+  // {path: '*', redirect: '/404', hidden: true}
 ]
 
-const loadDynamicRoutes = () => {
-  //todo 静态保存下，不用每次都调用刷新
-  return request({
-    url: '/tag/getTagList',
-    method: 'get',
-  }).then(response => {
-    response.data.list.forEach(route => {
-      constantRoutes[2].children.push({
-        path: "/?key=" + route.tagName,
-        name: "tag" + route.ID,
-        component: () => import(`@/views/tag/index`),
-        meta: {
-          title: route.tagName,
-          // icon: 'dashboard'
-        }
-      })
-    })
-    router.addRoutes(constantRoutes)
-  })
-    .catch(error => {
-      console.error('Error fetching dynamic routes:', error)
-    })
-}
-loadDynamicRoutes().then(r => {
-  resetRouter()
-  console.log("tag加载完毕")
-})
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({y: 0}),
-  routes: constantRoutes
-})
+const createRouter = () => {
+  console.log("创建router")
+  return new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({y: 0}),
+    routes: constantRoutes
+  })
+}
 
 const router = createRouter()
 
