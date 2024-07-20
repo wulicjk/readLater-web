@@ -129,7 +129,7 @@ export default {
     }
   },
   watch: {
-    sidebarInitStatus(oldStatus, newStatus) {
+    sidebarInitStatus() {
       this.initAllStatus()
     }
   },

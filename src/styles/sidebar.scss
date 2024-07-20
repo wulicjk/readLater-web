@@ -186,6 +186,7 @@
     .sidebar-container {
       transition: transform .28s;
       width: $sideBarWidth !important;
+      margin-right: 0!important;
     }
 
     &.hideSidebar {

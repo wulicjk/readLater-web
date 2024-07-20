@@ -1,9 +1,10 @@
 import request from "@/utils/request";
 
-export function getTagList(params) {
+export function getReadList(params) {
   return request({
-    url: '/tag/getTagList',
+    url: '/readList/getTagReadList',
     method: 'get',
     params
   })
 }
+

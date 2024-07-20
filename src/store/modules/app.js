@@ -5,7 +5,8 @@ const state = {
     opened: Cookies.get('sidebarStatus') ? !!+Cookies.get('sidebarStatus') : true,
     withoutAnimation: false
   },
-  device: 'desktop'
+  device: 'desktop',
+  modalAddLink: false
 }
 
 const mutations = {
@@ -25,19 +26,25 @@ const mutations = {
   },
   TOGGLE_DEVICE: (state, device) => {
     state.device = device
+  },
+  MODAL_ADD_LINK: (state, value) => {
+    state.modalAddLink = value
   }
 }
 
 const actions = {
-  toggleSideBar({ commit }) {
+  toggleSideBar({commit}) {
     commit('TOGGLE_SIDEBAR')
   },
-  closeSideBar({ commit }, { withoutAnimation }) {
+  closeSideBar({commit}, {withoutAnimation}) {
     commit('CLOSE_SIDEBAR', withoutAnimation)
   },
-  toggleDevice({ commit }, device) {
+  toggleDevice({commit}, device) {
     commit('TOGGLE_DEVICE', device)
-  }
+  },
+  modalAddLink({commit}) {
+    commit('MODAL_ADD_LINK', !state.modalAddLink)
+  },
 }
 
 export default {

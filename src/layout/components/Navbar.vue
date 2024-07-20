@@ -4,29 +4,29 @@
 
     <breadcrumb class="breadcrumb-container" />
 
-    <div class="right-menu">
-      <el-dropdown class="avatar-container" trigger="click">
-        <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
-        </div>
-        <el-dropdown-menu slot="dropdown" class="user-dropdown">
-          <router-link to="/">
-            <el-dropdown-item>
-              Home
+    <div class="right-side">
+      <div class="function-key">
+        <img src="@/assets/icon/add-url.svg" alt="Add Link" width="24" height="24" class="icon-img img-click" @click="modalAddLink">
+      </div>
+
+      <div class="right-menu">
+        <el-dropdown class="avatar-container" trigger="click">
+          <div class="avatar-wrapper">
+            <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+            <i class="el-icon-caret-bottom" />
+          </div>
+          <el-dropdown-menu slot="dropdown" class="user-dropdown">
+            <router-link to="/tag">
+              <el-dropdown-item>
+                Home
+              </el-dropdown-item>
+            </router-link>
+            <el-dropdown-item divided @click.native="logout">
+              <span style="display:block;">Log Out</span>
             </el-dropdown-item>
-          </router-link>
-          <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-            <el-dropdown-item>Github</el-dropdown-item>
-          </a>
-          <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
-            <el-dropdown-item>Docs</el-dropdown-item>
-          </a>
-          <el-dropdown-item divided @click.native="logout">
-            <span style="display:block;">Log Out</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
     </div>
   </div>
 </template>
@@ -48,6 +48,9 @@ export default {
     ])
   },
   methods: {
+    modalAddLink(){
+      this.$store.dispatch('app/modalAddLink')
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
@@ -93,24 +96,6 @@ export default {
       outline: none;
     }
 
-    .right-menu-item {
-      display: inline-block;
-      padding: 0 8px;
-      height: 100%;
-      font-size: 18px;
-      color: #5a5e66;
-      vertical-align: text-bottom;
-
-      &.hover-effect {
-        cursor: pointer;
-        transition: background .3s;
-
-        &:hover {
-          background: rgba(0, 0, 0, .025)
-        }
-      }
-    }
-
     .avatar-container {
       margin-right: 30px;
 
@@ -135,5 +120,16 @@ export default {
       }
     }
   }
+}
+.right-side {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+}
+.function-key {
+  display: flex;
+  align-items: center;
+  margin-left: 40%;
 }
 </style>

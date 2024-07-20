@@ -1,38 +1,48 @@
 <template>
   <div class="dashboard-container">
-    <!--    <div class="dashboard-text">name: {{ name }}</div>-->
     <div ref="containerDiv">
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="12" :md="8" :lg="6" :order="1" v-for="(o, index) in 20" :key="o" :offset="0"
+        <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="item in readList" :order="1" :key="item.id" :offset="0"
                 class="custom-col">
           <el-card :body-style="{ padding: '4px' }">
-            <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image" height="150px">
+            <img :src="item.imageUrl" class="image" height="150px">
             <div style="padding: 14px;height: 185px">
-              <h2 class="title" style="margin-top: 0;">好吃的汉吃的好吃的汉吃的好吃的汉吃的好吃的汉吃的</h2>
-              <div class="description">这是一个简介这是一个简介这是一个简介这是一个简介这是一个简介这是一个简介这是一个简介这是一个简介这是一个简介</div>
+              <h2 class="title" style="margin-top: 0;">{{ item.title }}</h2>
+              <div class="description">
+                {{ item.brief }}
+              </div>
               <div class="option" style="margin-top: 4px;">
-                <time class="time">2024/7/11 11:43</time>
+                <time class="time">{{ formatDateTime(item.CreatedAt) }}</time>
 
-                <el-dropdown>
+                <el-dropdown placement="top-end">
                   <el-button type="mini" class="no-border no-hover">
-                    <img class="option-icon" src="@/assets/icon/options-horizontal.svg" alt="选择" width="24" height="24">
+                    <img class="option-icon" src="@/assets/icon/options-horizontal.svg" alt="选择" width="24"
+                         height="24">
                   </el-button>
-                  <el-dropdown-menu slot="dropdown"  class="custom-dropdown">
+                  <el-dropdown-menu slot="dropdown" class="custom-dropdown">
                     <el-dropdown-item>
-                      <img class="option-icon" src="@/assets/icon/edit.svg" alt="编辑" width="24" height="24">
-                      编辑
+                      <div @click="editCardDiag(item)">
+                        <img class="option-icon" src="@/assets/icon/edit.svg" alt="编辑" width="24" height="24">
+                        编辑
+                      </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <img class="option-icon" src="@/assets/icon/moveTo.svg" alt="移动到" width="24" height="24">
-                      移动到
+                      <div @click="movoToDiag(item.ID)">
+                        <img class="option-icon" src="@/assets/icon/moveTo.svg" alt="移动到" width="24" height="24">
+                        移动到
+                      </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <img class="option-icon" src="@/assets/icon/delete.svg" alt="删除" width="24" height="24">
-                      删除
+                      <div @click="deleteCard(item.ID)">
+                        <img class="option-icon" src="@/assets/icon/delete.svg" alt="删除" width="24" height="24">
+                        删除
+                      </div>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <img class="option-icon" src="@/assets/icon/copy.svg" alt="复制链接" width="24" height="24">
-                      复制链接
+                      <div @click="copyToClipboard(item.link)">
+                        <img class="option-icon" src="@/assets/icon/copy.svg" alt="复制链接" width="24" height="24">
+                        复制链接
+                      </div>
                     </el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -42,35 +52,217 @@
         </el-col>
       </el-row>
     </div>
+    <div class="el-dialog-no-top-padding">
+      <el-dialog
+        title="Add a Link"
+        :visible.sync="modalAddLinkStatus"
+        width="50%" class="centered-dialog">
+        <el-divider class="divider"></el-divider>
+        <div class="add-link-bottom-side">
+          <el-input v-model="url" placeholder="www.example.com/article.html" style="width: 80%"></el-input>
+          <el-button @click="addLink" style="background-color: #222; color: white;">添加</el-button>
+        </div>
+      </el-dialog>
+    </div>
+    <div class="el-dialog-no-top-padding">
+      <el-dialog
+        title="编辑卡片"
+        :visible.sync="modalEditCardStatus"
+        width="80%" class="centered-dialog">
+        <el-divider class="divider"></el-divider>
+        <el-form ref="form" :model="card" label-width="80px">
+          <el-form-item label="ImageUrl">
+            <el-input v-model="card.imageUrl"></el-input>
+          </el-form-item>
+          <el-form-item label="Title">
+            <el-input v-model="card.title"></el-input>
+          </el-form-item>
+          <el-form-item label="Brief">
+            <el-input v-model="card.brief"></el-input>
+          </el-form-item>
+          <el-form-item label="Link">
+            <el-input v-model="card.link"></el-input>
+          </el-form-item>
+          <el-form-item class="text-right">
+            <el-button @click="editCard" style="background-color: #222; color: white;">确定</el-button>
+            <el-button @click="cancleEdit">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </div>
+    <div class="el-dialog-no-top-padding">
+      <el-dialog
+        title="移动到Tag"
+        :visible.sync="movetoDiagStatus"
+        width="40%" class="centered-dialog">
+        <el-divider class="divider"></el-divider>
+        <el-form ref="form" :model="card" label-width="80px">
+          <el-form-item>
+            <el-select v-model="tagOptionsValue" placeholder="请选择标签">
+              <el-option
+                v-for="item in tagOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item class="text-right">
+            <el-button @click="moveToTags" style="background-color: #222; color: white;">确定</el-button>
+            <el-button @click="cancleMove">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </div>
+
   </div>
 </template>
 
 <script>
 import {mapGetters} from 'vuex'
-import {getTagList} from "@/api/tag";
+import {getReadList} from "@/api/tag";
+import {addLinkToCard, deleteCard, editCard, formatDateTime, getTagList} from "@/api";
+import {resMessage} from "@/api/common";
 
 export default {
   name: 'Dashboard',
   data() {
     return {
-      tags: [],
+      readList: [],
+      formLabelAlign: {
+        name: '',
+        region: '',
+        type: ''
+      },
+      url: "",
+      modalEditCardStatus: false,
+      card: {
+        imageUrl: "",
+        title: "",
+        brief: "",
+        link: "",
+      },
+      movetoDiagStatus: false,
+      currentId: "",
+      tagOptions: [],
+      tagOptionsValue: ''
     }
   },
   created() {
-    this.getTags()
+    this.getTagReadList()
   },
   methods: {
-    getTags() {
-      getTagList().then(res => {
-        console.log(res)
+    formatDateTime,
+    getTagId() {
+      let routeName = this.$route.name;
+      if (routeName === 'tag') {
+        return "0"
+      }
+      return routeName.slice(3)
+    },
+    getTagReadList() {
+      let tagId = this.getTagId()
+      getReadList({tagId: tagId}).then(res => {
+        this.readList = res.data
       })
     },
+    addLink() {
+      addLinkToCard({url: this.url}).then(res => {
+        resMessage(res, this)
+        this.$store.dispatch('app/modalAddLink')
+        this.getTagReadList()
+        this.url = ""
+      })
+    },
+    deleteCard(id) {
+      this.$confirm('确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        deleteCard(id).then(res => {
+          resMessage(res, this)
+          this.getTagReadList()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
+    },
+    editCardDiag(item) {
+      this.card = item
+      this.modalEditCardStatus = true
+    },
+    cancleEdit() {
+      this.modalEditCardStatus = false
+    },
+    editCard() {
+      editCard(this.card).then(res => {
+        resMessage(res, this)
+        this.modalEditCardStatus = false
+        this.getTagReadList()
+      })
+    },
+    copyToClipboard(link) {
+      // 使用 navigator.clipboard.writeText() 将链接复制到剪贴板
+      navigator.clipboard.writeText(link)
+        .then(() => {
+          // 复制成功后的提示
+          this.$message({
+            message: '链接已复制到剪贴板',
+            type: 'success'
+          });
+        })
+        .catch(err => {
+          // 复制失败的错误处理
+          console.error('复制链接失败:', err);
+          this.$message({
+            message: '复制链接失败',
+            type: 'error'
+          });
+        });
+    },
+    movoToDiag(id) {
+      this.currentId = id
+      let tags = this.$store.state.user.tagCategories
+      console.log(tags)
+      tags.forEach(tag => {
+        if (typeof tag.name != "undefined" && tag.name.includes('tag')) {
+          this.tagOptions.push({value: tag.id, label: tag.tagName})
+        }
+      });
+      console.log(this.tagOptions)
+      this.movetoDiagStatus = true
+    },
+    cancleMove() {
+      this.movetoDiagStatus = false
+    },
+    moveToTags() {
+      let data = {'ID': this.currentId, 'tagId': this.tagOptionsValue}
+      editCard(data).then(res => {
+        resMessage(res, this)
+        this.movetoDiagStatus = false
+        this.getTagReadList()
+      })
+    }
   },
   computed: {
     ...mapGetters([
       'name'
-    ])
+    ]),
+    modalAddLinkStatus: {
+      get() {
+        return this.$store.state.app.modalAddLink
+      },
+      set(value) {
+        this.$store.state.app.modalAddLink = value;
+      }
+    }
   },
+  watch: {}
 }
 </script>
 
@@ -137,9 +329,11 @@ export default {
   align-items: center;
   width: 100%;
 }
+
 .option-icon {
   cursor: pointer;
 }
+
 .time {
   font-size: 13px;
   color: #999;
@@ -148,10 +342,12 @@ export default {
 .no-border {
   border: none !important;
 }
+
 .no-hover:hover,
-.no-hover:focus{
+.no-hover:focus {
   background-color: transparent !important;
 }
+
 .el-dropdown:hover .el-button {
   background-color: transparent !important;
 }
@@ -161,6 +357,7 @@ export default {
   padding: 10px 0;
   font-size: 16px;
 }
+
 .custom-dropdown .el-dropdown-menu__item {
   padding: 5px 20px;
   color: #666;
@@ -173,4 +370,40 @@ export default {
   width: 20px;
   height: 20px;
 }
+
+.el-dialog-no-top-padding {
+  ::v-deep {
+    .el-dialog__body {
+      padding-top: 0;
+    }
+  }
+}
+
+.divider {
+  margin-top: 0;
+}
+
+.add-link-bottom-side {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+::v-deep .el-dialog {
+  display: flex;
+  flex-direction: column;
+  margin: 0 !important;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: calc(100% - 30px);
+  max-width: calc(100% - 30px);
+}
+
+::v-deep .el-dialog .el-dialog__body {
+  flex: 1;
+  overflow: auto;
+}
+
 </style>

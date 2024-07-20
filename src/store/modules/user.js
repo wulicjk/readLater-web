@@ -57,7 +57,6 @@ const actions = {
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
         const {name, avatar} = data
 
         commit('SET_NAME', name)
@@ -85,8 +84,7 @@ const actions = {
       commit('RESET_STATE')
       resolve()
     })
-  }
-  ,
+  },
 
   // remove token
   resetToken({commit}) {
@@ -95,6 +93,9 @@ const actions = {
       commit('RESET_STATE')
       resolve()
     })
+  },
+  setTagCategories({commit}, categories) {
+    commit('SET_TAG_CATEGORIES', categories)
   }
 }
 
