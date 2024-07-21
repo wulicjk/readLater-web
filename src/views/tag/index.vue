@@ -123,7 +123,7 @@
 <script>
 import {mapGetters} from 'vuex'
 import {getReadList} from "@/api/tag";
-import {addLinkToCard, deleteCard, editCard, formatDateTime, getTagList} from "@/api";
+import {addLinkToCard, deleteCard, editCard, formatDateTime} from "@/api";
 import {resMessage} from "@/api/common";
 
 export default {
@@ -275,24 +275,23 @@ export default {
         this.page++
         this.hasMore = res.data.pageSize * res.data.page < res.data.total
         this.loading = false
-        console.log("loadMore执行完毕")
       })
     },
     setupIntersectionObserver() {
       const options = {
         root: null,
         rootMargin: '100px',
-        threshold: 1.0,
+        threshold: 0.75,
       };
 
-      const observer = new IntersectionObserver((entries) => {
+      this.observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             this.loadMore();
           }
         });
       }, options);
-      observer.observe(this.$refs.loadMore)
+      this.observer.observe(this.$refs.loadMore)
     },
   },
   computed: {
@@ -310,16 +309,8 @@ export default {
   },
   mounted() {
     this.getTagReadList().then(res => {
-      console.log("执行setupIntersectionObserver")
       this.setupIntersectionObserver();
     })
-
-
-    // this.$nextTick(() => {
-    //   console.log("执行setupIntersectionObserver")
-    //   this.setupIntersectionObserver();
-    // });
-    // this.setupIntersectionObserver()
   },
   beforeDestroy() {
     this.observer.disconnect()
