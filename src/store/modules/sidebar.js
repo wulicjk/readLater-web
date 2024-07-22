@@ -1,6 +1,7 @@
 const state = {
   isEditMode: false,
   initStatus: false,
+  newSubMenuMode:false,
 }
 
 const mutations = {
@@ -9,16 +10,28 @@ const mutations = {
   },
   INIT_ALL_TAG_STATUS: (state, value) => {
     state.initStatus = value
+  },
+  SET_NEW_SUB_MENU_MODE: (state, value) => {
+    state.newSubMenuMode = value
   }
 }
 
 const actions = {
-  toggleEditMode({commit}) {
-    commit('SET_EDIT_MODE', !state.isEditMode)
+  toggleEditModeTrue({commit}) {
+    commit('SET_EDIT_MODE', true)
+  },
+  toggleEditModeFalse({commit}) {
+    commit('SET_EDIT_MODE', false)
   },
   initAllTagStatus({commit}) {
     commit('INIT_ALL_TAG_STATUS', !state.initStatus)
   },
+  toggleNewSubMenuModeTrue({commit}){
+    commit('SET_NEW_SUB_MENU_MODE', true)
+  },
+  toggleNewSubMenuModeFalse({commit}){
+    commit('SET_NEW_SUB_MENU_MODE', false)
+  }
 }
 
 export default {

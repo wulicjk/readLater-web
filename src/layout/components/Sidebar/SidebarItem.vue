@@ -6,7 +6,8 @@
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
           <div class="menu-item-content">
             <div class="item-container">
-              <item v-if="!isTagEditMode" :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title"/>
+              <item v-if="!isTagEditMode" :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)"
+                    :title="onlyOneChild.meta.title"/>
               <input v-if="isTagEditMode" v-model="editTitle" type="text" class="edit-input">
             </div>
             <div v-if="showActionButtons &&!isTagEditMode" class="action-buttons">
@@ -15,10 +16,11 @@
               <img src="@/assets/icon/delete.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
                    @click="changeTagDangerMode" v-if="!isTagDangerMode">
               <img src="@/assets/icon/danger.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
-                   v-if="isTagDangerMode" @click="deleteTag">
+                   v-if="isTagDangerMode" @click="deleteTag(item)">
             </div>
             <div v-if="isTagEditMode" class="action-buttons">
-              <img src="@/assets/icon/true.svg" alt="Edit Icon" width="14" height="14" class="icon-img">
+              <img src="@/assets/icon/true.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
+                   @click="editMenuItem">
               <img src="@/assets/icon/false.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
                    @click="cancleTagEditMode">
             </div>
@@ -41,23 +43,33 @@
       />
       <!-- 如果当前菜单项的 name 属性为 "dashboard"，则添加一个"添加子菜单"的按钮 -->
       <div v-if="item.name === 'dashboard'">
-        <div class="operateButton" v-if="!showButtons">
+        <div class="operateButton" v-if="newSubMenuMode">
+          <input v-model="newSubmenuName" type="text" placeholder="请输入标签名称" class="edit-input"
+                 style="font-family:sans-serif;font-size:14px;height:20px;width: 120px">
+          <div class="action-buttons">
+            <img src="@/assets/icon/true.svg" alt="Save Icon" width="14" height="14" class="icon-img"
+                 @click="saveNewSubmenu">
+            <img src="@/assets/icon/false.svg" alt="Save Icon" width="14" height="14" class="icon-img"
+                 @click="cancleNewSubmenu">
+          </div>
+        </div>
+        <div class="operateButton" v-if="!newSubMenuMode&&!showButtons">
           <div class="left-side">
-            <el-menu-item index="add-submenu">
+            <el-menu-item index="add-submenu" @click="addSubMenu">
               <img src="@/assets/icon/add.svg" alt="Add Icon" width="14" height="14" class="icon-img">
               <span>Add</span>
             </el-menu-item>
           </div>
           <div class="right-side">
-            <el-menu-item index="add-submenu" @click="changeEditMode">
+            <el-menu-item index="edit-submenu" @click="changeEditMode">
               <img src="@/assets/icon/edit.svg" alt="Add Icon" width="14" height="14" class="icon-img">
               <span>Edit</span>
             </el-menu-item>
           </div>
         </div>
-        <div class="finishButton" v-if="showButtons">
+        <div class="finishButton" v-if="!newSubMenuMode&&showButtons">
           <div>
-            <el-menu-item index="add-submenu" @click="changeFinishMode">
+            <el-menu-item index="finish-submenu" @click="changeFinishMode">
               <img src="@/assets/icon/success.svg" alt="Add Icon" width="14" height="14" class="icon-img">
               <span>Finish</span>
             </el-menu-item>
@@ -74,8 +86,10 @@ import {isExternal} from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
-import {mapActions} from "vuex";
 import store from "@/store";
+import {createTag, deleteTag, editTag} from "@/api/tag";
+import {resMessage} from "@/api/common";
+import {resetRouter} from "@/router";
 
 export default {
   name: 'SidebarItem',
@@ -97,7 +111,6 @@ export default {
     }
   },
   created() {
-
   },
   data() {
     // To fix https://github.com/PanJiaChen/vue-admin-template/issues/237
@@ -108,24 +121,29 @@ export default {
       isTagDeleteMode: false,
       isTagDangerMode: false,
       editTitle: "",
+      newSubmenuName: '',
+      showNewSubMenuInput: false,
     }
   },
   mounted() {
-    if (!this.item.hidden){
-      if (this.onlyOneChild.name.includes('tag')){
+    if (!this.item.hidden) {
+      if (this.onlyOneChild.name.includes('tag')) {
         this.editTitle = this.onlyOneChild.meta.title
       }
     }
   },
   computed: {
     showActionButtons() {
-      return this.$store.state.sidebar.isEditMode && this.item.name.includes('tag')&&this.item.path!=='tag';
+      return this.$store.state.sidebar.isEditMode && this.item.name.includes('tag') && this.item.path !== 'tag';
     },
     showButtons() {
       return this.$store.state.sidebar.isEditMode;
     },
     sidebarInitStatus() {
       return this.$store.state.sidebar.initStatus
+    },
+    newSubMenuMode() {
+      return this.$store.state.sidebar.newSubMenuMode
     }
   },
   watch: {
@@ -167,7 +185,7 @@ export default {
       return path.resolve(this.basePath, routePath)
     },
     async changeEditMode() {
-      await store.dispatch('sidebar/toggleEditMode')
+      await store.dispatch('sidebar/toggleEditModeTrue')
     },
     //一个路由页面内的修改
     changeTagEditMode() {
@@ -182,8 +200,24 @@ export default {
         this.isTagDangerMode = !this.isTagDangerMode;
       }, 3000);
     },
-    deleteTag() {
-
+    editMenuItem() {
+      editTag({"ID": this.item.id, "tagName": this.editTitle}).then(async res => {
+        resMessage(res, this)
+        this.item.path = "/tag/" + this.editTitle
+        this.item.tagName = this.editTitle
+        this.item.meta.title = this.editTitle;
+        await this.$store.dispatch("user/updateRoutes", this.item)
+        resetRouter(this.$router.options.routes)
+        this.$router.push('/tag/' + this.editTitle)
+      })
+    },
+    deleteTag(item) {
+      deleteTag(item.id).then(async res => {
+        resMessage(res, this)
+        this.$router.push('/tag')
+        await this.$store.dispatch("user/deleteRoutes", item.id)
+        resetRouter(this.$router.options.routes)
+      })
     },
     async changeFinishMode() {
       await store.dispatch('sidebar/initAllTagStatus')
@@ -192,19 +226,36 @@ export default {
       this.isTagEditMode = false
       this.isTagDeleteMode = false
       this.isTagDangerMode = false
-      await store.dispatch('sidebar/toggleEditMode')
+      await store.dispatch('sidebar/toggleEditModeFalse')
+      await store.dispatch('sidebar/toggleNewSubMenuModeFalse')
     },
-    editMenuItem() {
-      // 添加编辑菜单项的逻辑
-      console.log('Editing menu item:', this.item);
+    async addSubMenu() {
+      await store.dispatch('sidebar/toggleNewSubMenuModeTrue')
     },
-    deleteMenuItem() {
-      // 添加删除菜单项的逻辑
-      console.log('Deleting menu item:', this.item);
+    saveNewSubmenu() {
+      createTag({tagName: this.newSubmenuName}).then(async res => {
+        resMessage(res, this)
+        this.$store.dispatch("user/addRoutes", {
+          path: "/tag/" + this.newSubmenuName,
+          name: "tag" + res.data.id,
+          id: res.data.id,
+          tagName: this.newSubmenuName,
+          component: () => import(`@/views/tag/index`),
+          meta: {
+            title: this.newSubmenuName,
+            // icon: 'dashboard'
+          }
+        })
+        resetRouter(this.$router.options.routes)
+        await store.dispatch('sidebar/toggleNewSubMenuModeFalse')
+        // 显示新建子菜单的input框
+        this.newSubmenuName = ''
+      })
     },
-    addSubmenu() {
-      // 添加添加子菜单的逻辑
-      console.log('Adding submenu to:', this.item);
+    async cancleNewSubmenu() {
+      await store.dispatch('sidebar/toggleNewSubMenuModeFalse')
+      // 显示新建子菜单的input框
+      this.newSubmenuName = ''
     },
   }
 }
@@ -230,7 +281,7 @@ export default {
 
 }
 
-.edit-input{
+.edit-input {
   max-width: 120px;
 }
 

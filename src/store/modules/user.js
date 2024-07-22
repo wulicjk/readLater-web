@@ -28,6 +28,24 @@ const mutations = {
   },
   SET_TAG_CATEGORIES(state, categories) {
     state.tagCategories = categories
+  },
+  ADD_ROUTES: (state, routes) => {
+    state.tagCategories.pop();
+    state.tagCategories.push(routes)
+    state.tagCategories.push({path: '*', redirect: '/404', hidden: true})
+  },
+  DELETE_ROUTES: (state, tagIdToDelete) => {
+    let indexToDelete = state.tagCategories.findIndex(tag => tag.id === tagIdToDelete);
+    if (indexToDelete !== -1) {
+      state.tagCategories.splice(indexToDelete, 1);
+    }
+  },
+  UPDATE_ROUTES: (state, menu) => {
+    let targetIndex = state.tagCategories.findIndex(item => item.id === menu.id);
+    if (targetIndex !== -1) {
+      state.tagCategories[targetIndex] = menu
+    }
+    console.log(state.tagCategories)
   }
 }
 
@@ -96,7 +114,16 @@ const actions = {
   },
   setTagCategories({commit}, categories) {
     commit('SET_TAG_CATEGORIES', categories)
-  }
+  },
+  addRoutes({commit}, menu) {
+    commit('ADD_ROUTES', menu)
+  },
+  deleteRoutes({commit}, tagIdToDelete) {
+    commit('DELETE_ROUTES', tagIdToDelete)
+  },
+  updateRoutes({commit}, menu) {
+    commit('UPDATE_ROUTES', menu)
+  },
 }
 
 export default {

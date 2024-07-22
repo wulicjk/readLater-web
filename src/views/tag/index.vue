@@ -122,8 +122,7 @@
 
 <script>
 import {mapGetters} from 'vuex'
-import {getReadList} from "@/api/tag";
-import {addLinkToCard, deleteCard, editCard, formatDateTime} from "@/api";
+import {addLinkToCard, deleteCard, editCard, formatDateTime, getReadList} from "@/api";
 import {resMessage} from "@/api/common";
 
 export default {
@@ -247,7 +246,6 @@ export default {
           this.tagOptions.push({value: tag.id, label: tag.tagName})
         }
       });
-      console.log(this.tagOptions)
       this.movetoDiagStatus = true
     },
     cancleMove() {
