@@ -2,31 +2,35 @@
   <div v-if="!item.hidden">
     <template
       v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
-        <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-          <div class="menu-item-content">
+
+      <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
+        <div class="menu-item-content">
+          <app-link v-if="onlyOneChild.meta&&!isTagEditMode" :to="resolvePath(onlyOneChild.path)">
             <div class="item-container">
-              <item v-if="!isTagEditMode" :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)"
+              <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)"
                     :title="onlyOneChild.meta.title"/>
-              <input v-if="isTagEditMode" v-model="editTitle" type="text" class="edit-input">
             </div>
-            <div v-if="showActionButtons &&!isTagEditMode" class="action-buttons">
-              <img src="@/assets/icon/edit.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
-                   @click="changeTagEditMode">
-              <img src="@/assets/icon/delete.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
-                   @click="changeTagDangerMode" v-if="!isTagDangerMode">
-              <img src="@/assets/icon/danger.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
-                   v-if="isTagDangerMode" @click="deleteTag(item)">
-            </div>
-            <div v-if="isTagEditMode" class="action-buttons">
-              <img src="@/assets/icon/true.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
-                   @click="editMenuItem">
-              <img src="@/assets/icon/false.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
-                   @click="cancleTagEditMode">
-            </div>
+          </app-link>
+          <div class="item-container" v-if="isTagEditMode">
+            <input v-model="editTitle" type="text" class="edit-input">
           </div>
-        </el-menu-item>
-      </app-link>
+          <div v-if="showActionButtons &&!isTagEditMode" class="action-buttons">
+            <img src="@/assets/icon/edit.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
+                 @click="changeTagEditMode">
+            <img src="@/assets/icon/delete.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                 @click="changeTagDangerMode" v-if="!isTagDangerMode">
+            <img src="@/assets/icon/danger.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                 v-if="isTagDangerMode" @click="deleteTag(item)">
+          </div>
+          <div v-if="isTagEditMode" class="action-buttons">
+            <img src="@/assets/icon/true.svg" alt="Edit Icon" width="14" height="14" class="icon-img"
+                 @click="editMenuItem">
+            <img src="@/assets/icon/false.svg" alt="Delete Icon" width="14" height="14" class="icon-img"
+                 @click="cancleTagEditMode">
+          </div>
+        </div>
+      </el-menu-item>
+
     </template>
     <!--    有子菜单时用这个渲染-->
     <el-submenu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
@@ -208,7 +212,7 @@ export default {
         this.item.meta.title = this.editTitle;
         await this.$store.dispatch("user/updateRoutes", this.item)
         resetRouter(this.$router.options.routes)
-        this.$router.push('/tag/' + this.editTitle)
+        this.isTagEditMode = false
       })
     },
     deleteTag(item) {
@@ -278,7 +282,6 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
 }
 
 .edit-input {
