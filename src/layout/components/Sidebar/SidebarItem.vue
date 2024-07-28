@@ -239,7 +239,7 @@ export default {
     saveNewSubmenu() {
       createTag({tagName: this.newSubmenuName}).then(async res => {
         resMessage(res, this)
-        this.$store.dispatch("user/addRoutes", {
+        await this.$store.dispatch("user/addRoutes", {
           path: "/tag/" + this.newSubmenuName,
           name: "tag" + res.data.id,
           id: res.data.id,
@@ -250,7 +250,7 @@ export default {
             // icon: 'dashboard'
           }
         })
-        resetRouter(this.$router.options.routes)
+        resetRouter(this.$store.state.user.categories)
         await store.dispatch('sidebar/toggleNewSubMenuModeFalse')
         // 显示新建子菜单的input框
         this.newSubmenuName = ''

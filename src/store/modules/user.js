@@ -1,13 +1,14 @@
 import {login, logout, getInfo} from '@/api/user'
 import {getToken, setToken, removeToken} from '@/utils/auth'
-import {resetRouter} from '@/router'
+import router, {genuineRoutes, resetRouter} from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
     avatar: '',
-    tagCategories: []
+    categories: [],
+    tagCategories:[],
   }
 }
 
@@ -26,8 +27,9 @@ const mutations = {
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
   },
-  SET_TAG_CATEGORIES(state, categories) {
-    state.tagCategories = categories
+  SET_CATEGORIES(state, categories) {
+    state.categories = categories
+    state.tagCategories = state.categories[3].children
   },
   ADD_ROUTES: (state, routes) => {
     state.tagCategories.pop();
@@ -69,7 +71,7 @@ const actions = {
   // get user info
   getInfo({commit, state}) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
+      getInfo().then(response => {
         const {data} = response
 
         if (!data) {
@@ -78,7 +80,9 @@ const actions = {
         const {name, avatar} = data
 
         commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+        // commit('SET_AVATAR', avatar)
+        //暂时固定用户头像
+        commit('SET_AVATAR', require('@/assets/logo/avator.jpg'))
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -112,8 +116,8 @@ const actions = {
       resolve()
     })
   },
-  setTagCategories({commit}, categories) {
-    commit('SET_TAG_CATEGORIES', categories)
+  setCategories({commit}, categories) {
+    commit('SET_CATEGORIES', categories)
   },
   addRoutes({commit}, menu) {
     commit('ADD_ROUTES', menu)

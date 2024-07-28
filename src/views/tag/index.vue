@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard-container">
     <div>
-      <el-row :gutter="20">
+      <el-row :gutter="20" style="max-width: 1500px;">
         <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="(item,index) in readList" :key="item.id" :offset="0"
                 :ref="index === readList.length - 1 ? 'lastItem' : ''"
                 class="custom-col">
           <el-card :body-style="{ padding: '4px' }">
             <img :src="item.imageUrl" class="image" height="150px">
-            <div style="padding: 14px;height: 185px">
+            <div style="padding: 14px 14px 4px 14px;height: 185px">
               <h2 class="title" style="margin-top: 0;">{{ item.title }}</h2>
               <div class="description">
                 {{ item.brief }}
@@ -240,7 +240,7 @@ export default {
     moveToDiag(id) {
       this.tagOptions = []
       this.currentId = id
-      let tags = this.$store.state.user.tagCategories
+      let tags = this.$store.state.user.categories
       tags.forEach(tag => {
         if (typeof tag.name != "undefined" && tag.name.includes('tag')) {
           this.tagOptions.push({value: tag.id, label: tag.tagName})
@@ -371,6 +371,7 @@ export default {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 8px;
 }
 
 .option {
