@@ -6,49 +6,47 @@
                 :ref="index === readList.length - 1 ? 'lastItem' : ''"
                 class="custom-col">
           <el-card :body-style="{ padding: '4px' }">
-            <div @click="goToLink(item.link)">
-              <img :src="item.imageUrl" class="image" height="150px">
-              <div style="padding: 14px 14px 4px 14px;height: 185px">
-                <h2 class="title" style="margin-top: 0;">{{ item.title }}</h2>
-                <div class="description">
-                  {{ item.brief }}
-                </div>
-                <div class="option" style="margin-top: 4px;">
-                  <time class="time">{{ formatDateTime(item.CreatedAt) }}</time>
+            <img :src="item.imageUrl" class="image" height="150px" @click="goToLink(item.link)" style="cursor: pointer;">
+            <div style="padding: 14px 14px 4px 14px;height: 185px">
+              <h2 class="title" style="margin-top: 0; cursor: pointer;" @click="goToLink(item.link)">{{ item.title }}</h2>
+              <div class="description" @click="goToLink(item.link)" style="cursor: pointer;">
+                {{ item.brief }}
+              </div>
+              <div class="option" style="margin-top: 4px;">
+                <time class="time">{{ formatDateTime(item.CreatedAt) }}</time>
 
-                  <el-dropdown placement="top-end">
-                    <el-button type="mini" class="no-border no-hover">
-                      <img class="option-icon" src="@/assets/icon/options-horizontal.svg" alt="选择" width="24"
-                           height="24">
-                    </el-button>
-                    <el-dropdown-menu slot="dropdown" class="custom-dropdown">
-                      <el-dropdown-item>
-                        <div @click="editCardDiag(item)">
-                          <img class="option-icon" src="@/assets/icon/edit.svg" alt="编辑" width="24" height="24">
-                          编辑
-                        </div>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <div @click="moveToDiag(item.ID)">
-                          <img class="option-icon" src="@/assets/icon/moveTo.svg" alt="移动到" width="24" height="24">
-                          移动到
-                        </div>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <div @click="deleteCard(item.ID)">
-                          <img class="option-icon" src="@/assets/icon/delete.svg" alt="删除" width="24" height="24">
-                          删除
-                        </div>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <div @click="copyToClipboard(item.link)">
-                          <img class="option-icon" src="@/assets/icon/copy.svg" alt="复制链接" width="24" height="24">
-                          复制链接
-                        </div>
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </div>
+                <el-dropdown placement="top-end">
+                  <el-button type="mini" class="no-border no-hover">
+                    <img class="option-icon" src="@/assets/icon/options-horizontal.svg" alt="选择" width="24"
+                         height="24">
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown" class="custom-dropdown">
+                    <el-dropdown-item>
+                      <div @click="editCardDiag(item)">
+                        <img class="option-icon" src="@/assets/icon/edit.svg" alt="编辑" width="24" height="24">
+                        编辑
+                      </div>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <div @click="moveToDiag(item.ID)">
+                        <img class="option-icon" src="@/assets/icon/moveTo.svg" alt="移动到" width="24" height="24">
+                        移动到
+                      </div>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <div @click="deleteCard(item.ID)">
+                        <img class="option-icon" src="@/assets/icon/delete.svg" alt="删除" width="24" height="24">
+                        删除
+                      </div>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <div @click="copyToClipboard(item.link)">
+                        <img class="option-icon" src="@/assets/icon/copy.svg" alt="复制链接" width="24" height="24">
+                        复制链接
+                      </div>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               </div>
             </div>
           </el-card>
@@ -244,14 +242,25 @@ export default {
             });
           });
       } else {
-        const input = this.$refs.inputRef;
-        input.select();
-        input.setSelectionRange(0, 99999); // 适用于不同浏览器的兼容性处理
-        document.execCommand("copy");
-        input.setSelectionRange(0, 0); // 清除选中状态
-        this.$message({
-          message: '链接已复制到剪贴板',
-          type: 'success'
+        // 创建text area
+        let textArea = document.createElement("textarea");
+        textArea.value = link;
+        // 使text area不在viewport，同时设置不可见
+        textArea.style.position = "absolute";
+        textArea.style.opacity = 0;
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        return new Promise((res, rej) => {
+          // 执行复制命令并移除文本框
+          document.execCommand('copy') ? res() : rej();
+          textArea.remove();
+          this.$message({
+            message: '链接已复制到剪贴板',
+            type: 'success'
+          });
         });
       }
     },
