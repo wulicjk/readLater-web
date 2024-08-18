@@ -33,16 +33,9 @@ import variables from '@/styles/variables.scss'
 export default {
   components: {SidebarItem, Logo},
   data() {
-    return {
-      routeArr: []
-    }
+    return {}
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.routeArr = this.$router.options.routes
-      console.log(this.routeArr)
-      console.log(this.tagCategories)
-    })
+  created() {
   },
   computed: {
     ...mapGetters([

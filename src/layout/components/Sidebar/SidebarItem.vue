@@ -1,8 +1,7 @@
 <template>
   <div v-if="!item.hidden">
     <template
-      v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
-
+      v-if="(this.$store.state.user.tagCategories.length>2||item.path==='tag')&&hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
         <div class="menu-item-content">
           <app-link v-if="onlyOneChild.meta&&!isTagEditMode" :to="resolvePath(onlyOneChild.path)">

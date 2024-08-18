@@ -13,7 +13,6 @@ export function getAsyncRoutes(routes) {
     if (item.component) {
       // 判断 item.component 是否等于 'Layout',若是则直接替换成引入的 Layout 组件
       if (item.component === 'Layout') {
-        console.log('Layout', item.component)
         newItem.component = Layout
       } else {
         //  item.component 不等于 'Layout',则说明它是组件路径地址，因此直接替换成路由引入的方法

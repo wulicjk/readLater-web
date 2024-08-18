@@ -8,7 +8,7 @@ const getDefaultState = () => {
     name: '',
     avatar: '',
     categories: [],
-    tagCategories:[],
+    tagCategories: [],
   }
 }
 
