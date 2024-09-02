@@ -1,63 +1,68 @@
 <template>
-  <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm"
-             :rules="loginRules" class="login-form" auto-complete="on" label-position="top">
-      <div class="title-container">
-        <h3 class="title">登录</h3>
-      </div>
+  <div>
+    <div class="login-container">
+      <el-form ref="loginForm" :model="loginForm"
+               :rules="loginRules" class="login-form" auto-complete="on" label-position="top">
+        <div class="title-container">
+          <h3 class="title">登录</h3>
+        </div>
 
-      <el-form-item label="用户名" prop="username">
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="请输入用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-        >
-        </el-input>
-      </el-form-item>
+        <el-form-item label="用户名" prop="username">
+          <el-input
+            ref="username"
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+            name="username"
+            type="text"
+            tabindex="1"
+            auto-complete="on"
+          >
+          </el-input>
+        </el-form-item>
 
-      <el-form-item label="密码" prop="password">
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="请输入密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        >
-          <template #append>
+        <el-form-item label="密码" prop="password">
+          <el-input
+            :key="passwordType"
+            ref="password"
+            v-model="loginForm.password"
+            :type="passwordType"
+            placeholder="请输入密码"
+            name="password"
+            tabindex="2"
+            auto-complete="on"
+            @keyup.enter.native="handleLogin"
+          >
+            <template #append>
             <span class="show-pwd" @click="showPwd">
               <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"/>
             </span>
-          </template>
-        </el-input>
-      </el-form-item>
+            </template>
+          </el-input>
+        </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width: 100%; margin-bottom: 30px;"
-                 @click.native.prevent="handleLogin">
-        登录
-      </el-button>
+        <el-button :loading="loading" type="primary" style="width: 100%; margin-bottom: 30px;"
+                   @click.native.prevent="handleLogin">
+          登录
+        </el-button>
 
-      <div class="signup-container">
-        <span>没有账号?</span>
-        <router-link to="/register">注册</router-link>
-      </div>
-    </el-form>
+        <div class="signup-container">
+          <span>没有账号?</span>
+          <router-link to="/register">注册</router-link>
+        </div>
+      </el-form>
+    </div>
+    <Footer></Footer>
   </div>
 </template>
 
 <script>
 import {validUsername} from '@/utils/validate'
 import {constantRoutes} from "@/router";
+import Footer from "@/views/common/footer.vue";
 
 export default {
   name: 'Login',
+  components: {Footer},
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
