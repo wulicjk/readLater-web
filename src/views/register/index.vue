@@ -209,6 +209,7 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: #f5f5f5;
+  height: 100vh;
 
   .register-form {
     background: #fff;
