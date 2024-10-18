@@ -186,7 +186,7 @@ export default {
       addLinkToCard({url: this.url}).then(res => {
         resMessage(res, this)
         this.$store.dispatch('app/modalAddLink')
-        this.getTagReadList()
+        this.easyLoadList()
         this.url = ""
       })
     },
@@ -199,7 +199,7 @@ export default {
       }).then(() => {
         deleteCard(id).then(res => {
           resMessage(res, this)
-          this.getTagReadList()
+          this.easyLoadList()
         })
       }).catch(() => {
         this.$message({
@@ -219,7 +219,7 @@ export default {
       editCard(this.card).then(res => {
         resMessage(res, this)
         this.modalEditCardStatus = false
-        this.getTagReadList()
+        this.easyLoadList()
       })
     },
     copyToClipboard(link) {
@@ -283,7 +283,7 @@ export default {
       editCard(data).then(res => {
         resMessage(res, this)
         this.movetoDiagStatus = false
-        this.getTagReadList()
+        this.easyLoadList()
         this.tagOptionsValue = ""
       })
     },
@@ -300,6 +300,11 @@ export default {
         this.page++
         this.hasMore = res.data.pageSize * res.data.page < res.data.total
         this.loading = false
+      })
+    },
+    easyLoadList(){
+      this.getTagReadList().then(res => {
+        this.setupIntersectionObserver();
       })
     },
     setupIntersectionObserver() {
@@ -333,9 +338,7 @@ export default {
     }
   },
   mounted() {
-    this.getTagReadList().then(res => {
-      this.setupIntersectionObserver();
-    })
+    this.easyLoadList()
   },
   beforeDestroy() {
     this.observer.disconnect()
