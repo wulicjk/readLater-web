@@ -6,9 +6,12 @@
                 :ref="index === readList.length - 1 ? 'lastItem' : ''"
                 class="custom-col">
           <el-card :body-style="{ padding: '4px' }">
-            <img :src="item.imageUrl" class="image" height="150px" @click="goToLink(item.link)" style="cursor: pointer;">
+            <img :src="item.imageUrl" class="image" height="150px" @click="goToLink(item.link)"
+                 style="cursor: pointer;">
             <div style="padding: 14px 14px 4px 14px;height: 185px">
-              <h2 class="title" style="margin-top: 0; cursor: pointer;" @click="goToLink(item.link)">{{ item.title }}</h2>
+              <h2 class="title" style="margin-top: 0; cursor: pointer;" @click="goToLink(item.link)">{{
+                  item.title
+                }}</h2>
               <div class="description" @click="goToLink(item.link)" style="cursor: pointer;">
                 {{ item.brief }}
               </div>
@@ -61,8 +64,26 @@
         width="50%" class="centered-dialog">
         <el-divider class="divider"></el-divider>
         <div class="add-link-bottom-side">
-          <el-input v-model="url" placeholder="www.example.com/article.html" style="width: 80%"></el-input>
-          <el-button @click="addLink" style="background-color: #222; color: white;">添加</el-button>
+          <div class="add-link-bottom-left">
+            <el-form ref="form" :model="card" label-width="80px">
+              <el-form-item>
+                <el-input v-model="url" placeholder="www.example.com/article.html" style="width: 80%"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-select v-model="addOptionVal" placeholder="请选择标签">
+                  <el-option
+                    v-for="item in tagOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+          </div>
+          <div class="add-link-bottom-right">
+            <el-button @click="addLink" style="background-color: #222; color: white;">添加</el-button>
+          </div>
         </div>
       </el-dialog>
     </div>
@@ -136,6 +157,7 @@ export default {
         type: ''
       },
       url: "",
+      addOptionVal: 0,
       modalEditCardStatus: false,
       card: {
         imageUrl: "",
@@ -183,11 +205,12 @@ export default {
       return this.loadMore()
     },
     addLink() {
-      addLinkToCard({url: this.url}).then(res => {
+      addLinkToCard({url: this.url, tagId: this.addOptionVal}).then(res => {
         resMessage(res, this)
         this.$store.dispatch('app/modalAddLink')
         this.easyLoadList()
         this.url = ""
+        this.addOptionVal = 0
       })
     },
     deleteCard(id) {
@@ -264,16 +287,18 @@ export default {
         });
       }
     },
-    moveToDiag(id) {
+    moveToDiag() {
+      this.loadTagOptions()
+      this.movetoDiagStatus = true
+    },
+    loadTagOptions() {
       this.tagOptions = []
-      this.currentId = id
       let tags = this.$store.state.user.tagCategories
       tags.forEach(tag => {
         if (typeof tag.name != "undefined" && tag.name.includes('tag')) {
           this.tagOptions.push({value: tag.id, label: tag.tagName})
         }
       });
-      this.movetoDiagStatus = true
     },
     cancleMove() {
       this.movetoDiagStatus = false
@@ -302,7 +327,7 @@ export default {
         this.loading = false
       })
     },
-    easyLoadList(){
+    easyLoadList() {
       this.getTagReadList().then(res => {
         this.setupIntersectionObserver();
       })
@@ -330,6 +355,7 @@ export default {
     ]),
     modalAddLinkStatus: {
       get() {
+        this.loadTagOptions()
         return this.$store.state.app.modalAddLink
       },
       set(value) {
@@ -467,6 +493,16 @@ export default {
 .add-link-bottom-side {
   display: flex;
   justify-content: space-between;
+}
+
+.add-link-bottom-left{
+  display: flex;
+  flex-direction: column; /* 设置为竖向排列 */
+  justify-content: space-between; /* 在主轴上均匀分配空间 */
+}
+.add-link-bottom-right{
+  display: flex;
+  align-items: center;
 }
 
 
