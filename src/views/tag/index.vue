@@ -59,17 +59,17 @@
     </div>
     <div class="el-dialog-no-top-padding">
       <el-dialog
-        title="Add a Link"
+        title="添加链接"
         :visible.sync="modalAddLinkStatus"
-        width="50%" class="centered-dialog">
+        width="80%" class="centered-dialog">
         <el-divider class="divider"></el-divider>
         <div class="add-link-bottom-side">
           <div class="add-link-bottom-left">
             <el-form ref="form" :model="card" label-width="80px">
-              <el-form-item>
+              <el-form-item label="链接">
                 <el-input v-model="url" placeholder="www.example.com/article.html" style="width: 80%"></el-input>
               </el-form-item>
-              <el-form-item>
+              <el-form-item label="标签">
                 <el-select v-model="addOptionVal" placeholder="请选择标签">
                   <el-option
                     v-for="item in tagOptions"
@@ -79,10 +79,11 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+              <el-form-item>
+                <el-button @click="addLink" style="background-color: #222; color: white;">添加</el-button>
+                <el-button @click="cancleAddLink">取消</el-button>
+              </el-form-item>
             </el-form>
-          </div>
-          <div class="add-link-bottom-right">
-            <el-button @click="addLink" style="background-color: #222; color: white;">添加</el-button>
           </div>
         </div>
       </el-dialog>
@@ -117,9 +118,9 @@
       <el-dialog
         title="移动到Tag"
         :visible.sync="movetoDiagStatus"
-        width="40%" class="centered-dialog">
+        width="80%" class="centered-dialog">
         <el-divider class="divider"></el-divider>
-        <el-form ref="form" :model="card" label-width="80px">
+        <el-form ref="form" :model="card" label-width="80px" class="no-margin-left">
           <el-form-item>
             <el-select v-model="tagOptionsValue" placeholder="请选择标签">
               <el-option
@@ -157,7 +158,7 @@ export default {
         type: ''
       },
       url: "",
-      addOptionVal: 0,
+      addOptionVal: '',
       modalEditCardStatus: false,
       card: {
         imageUrl: "",
@@ -176,7 +177,8 @@ export default {
       // 当前页码
       page: 1,
       // 每页数量
-      pageSize: 12
+      pageSize: 12,
+      flagAll: true,
     }
   },
   created() {
@@ -237,6 +239,11 @@ export default {
     },
     cancleEdit() {
       this.modalEditCardStatus = false
+    },
+    cancleAddLink(){
+      this.modalAddLinkStatus = false
+      this.url = ''
+      this.addOptionVal = ''
     },
     editCard() {
       editCard(this.card).then(res => {
@@ -316,6 +323,9 @@ export default {
       if (this.loading || !this.hasMore) return
       this.loading = true
       let tagId = this.getTagId()
+      if (tagId !== 0) {
+        this.flagAll = false
+      }
       return getReadList({
         tagId: tagId,
         page: this.page,
@@ -495,14 +505,14 @@ export default {
   justify-content: space-between;
 }
 
-.add-link-bottom-left{
+.add-link-bottom-left {
   display: flex;
   flex-direction: column; /* 设置为竖向排列 */
   justify-content: space-between; /* 在主轴上均匀分配空间 */
 }
-.add-link-bottom-right{
-  display: flex;
-  align-items: center;
+
+.no-margin-left ::v-deep .el-form-item__content{
+  margin: 0 !important;
 }
 
 
