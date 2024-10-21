@@ -3,7 +3,7 @@
     <!--    logo页面-->
     <logo v-if="showLogo" :collapse="isCollapse"/>
     <!--    这是一个由 Element UI 提供的可滚动容器组件,用于在侧边栏导航内容超出屏幕时提供滚动功能。-->
-    <el-scrollbar wrap-class="scrollbar-wrapper">
+    <el-scrollbar wrap-class="scrollbar-wrapper" :native="true">
       <!--      这是 Element UI 提供的菜单组件,用于渲染侧边栏导航菜单。-->
       <!--      mode="vertical" 这个属性用于设置菜单的展示模式,在这里设置为垂直模式。-->
       <el-menu
