@@ -167,7 +167,7 @@ export default {
         link: "",
       },
       movetoDiagStatus: false,
-      currentId: "",
+      currentId: 0,
       tagOptions: [],
       tagOptionsValue: '',
       // 是否正在加载
@@ -294,7 +294,8 @@ export default {
         });
       }
     },
-    moveToDiag() {
+    moveToDiag(id) {
+      this.currentId = id
       this.loadTagOptions()
       this.movetoDiagStatus = true
     },

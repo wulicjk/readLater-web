@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
@@ -9,3 +9,9 @@ export default {
   name: 'App'
 }
 </script>
+
+<style>
+.el-scrollbar .el-scrollbar__bar {
+  opacity: 1 !important;
+}
+</style>
